@@ -19,6 +19,8 @@ import org.springframework.messaging.MessageHandler;
 import org.springframework.messaging.PollableChannel;
 import org.springframework.scheduling.support.PeriodicTrigger;
 
+import com.example.demo.filters.EPESpelFilter;
+import com.example.demo.filters.EPEXSDFilter;
 import com.example.demo.transformers.FileToStringTransformer;
 
 @EnableIntegration
@@ -39,13 +41,26 @@ public class SFTRFlow {
 	public IntegrationFlow sftrFlow(){
 		return IntegrationFlows.from(fileReader(), c -> c.poller(Pollers.fixedDelay(100)))
 				//.channel("solaceQueueReader")
+				.filter(new EPEXSDFilter())
+				.filter(new EPESpelFilter())
+				.routeToRecipients(r -> r
+						.recipientFlow(f -> f
+								.transform(new FileToStringTransformer())
+								.log(LoggingHandler.Level.INFO, "payload")
+								.handle(fileWriter())
+								)
+						
+						.recipientFlow(f -> f
+								.transform(new FileToStringTransformer())
+								.log(LoggingHandler.Level.INFO, "payload")
+								.handle(fileWriter())
+								)
+						.defaultOutputToParentFlow()
+						)
 				.log(LoggingHandler.Level.INFO, "payload")
-				.transform(new FileToStringTransformer())
-				//.handle(fileWriter())
-				.log(LoggingHandler.Level.INFO, "payload")
-				.log(LoggingHandler.Level.INFO, "There is end of process")
+//				.transform(new FileToStringTransformer())
 				.get();
-		
+
 	}
 
 //	public SolMessageConsumer solaceQueueReader() {

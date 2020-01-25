@@ -49,6 +49,11 @@
 		    <groupId>org.springframework.integration</groupId>
 		    <artifactId>spring-integration-file</artifactId>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.springframework.ws/spring-xml -->
+		<dependency>
+		    <groupId>org.springframework.ws</groupId>
+		    <artifactId>spring-xml</artifactId>
+		</dependency>
 		
 		<!-- dependency>
 		    <groupId>com.solace.spring.boot</groupId>
