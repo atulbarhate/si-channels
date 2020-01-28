@@ -4,10 +4,12 @@ import java.io.File;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.config.EnableIntegration;
 import org.springframework.integration.core.MessageSource;
 import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.integration.dsl.IntegrationFlows;
+import org.springframework.integration.dsl.MessageChannels;
 import org.springframework.integration.dsl.Pollers;
 import org.springframework.integration.file.FileReadingMessageSource;
 import org.springframework.integration.file.FileWritingMessageHandler;
@@ -22,6 +24,7 @@ import org.springframework.scheduling.support.PeriodicTrigger;
 import com.example.demo.filters.EPESpelFilter;
 import com.example.demo.filters.EPEXSDFilter;
 import com.example.demo.transformers.FileToStringTransformer;
+import com.solacesystems.jms.SolQueue;
 
 @EnableIntegration
 @Configuration
@@ -32,15 +35,24 @@ public class SFTRFlow {
 		// TODO Auto-generated method stub
 		FileReadingMessageSource reader = new FileReadingMessageSource();
 		reader.setDirectory(new File("C:\\env\\ws-sts4\\si-channels\\input"));
-		
-		
 		return reader;
 	}
+
 	
+   @Bean
+    public DirectChannel inputChannel() {
+        return new DirectChannel();
+    }
+   
+   @Bean
+   public MessageChannel queueChannel() {
+       return MessageChannels.queue().get();
+   }
+    
 	@Bean
 	public IntegrationFlow sftrFlow(){
-		return IntegrationFlows.from(fileReader(), c -> c.poller(Pollers.fixedDelay(100)))
-				//.channel("solaceQueueReader")
+		return IntegrationFlows.from( fileReader(), c -> c.poller(Pollers.fixedDelay(100)))
+				.channel( "queueChannel" )
 				.filter(new EPEXSDFilter())
 				.filter(new EPESpelFilter())
 				.routeToRecipients(r -> r
@@ -59,6 +71,7 @@ public class SFTRFlow {
 						)
 				.log(LoggingHandler.Level.INFO, "payload")
 //				.transform(new FileToStringTransformer())
+				
 				.get();
 
 	}
