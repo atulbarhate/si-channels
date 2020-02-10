@@ -33,6 +33,7 @@ import org.springframework.integration.file.FileHeaders;
 import org.springframework.integration.support.DefaultMessageBuilderFactory;
 import org.springframework.integration.support.MessageBuilderFactory;
 import org.springframework.integration.support.utils.IntegrationUtils;
+import org.springframework.integration.transformer.GenericTransformer;
 import org.springframework.integration.transformer.Transformer;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessagingException;
@@ -45,7 +46,7 @@ import org.springframework.util.FileCopyUtils;
  * @author Mark Fisher
  * @author Gary Russell
  */
-public class FileToStringTransformer implements Transformer, BeanFactoryAware {
+public class FileToStringTransformer implements GenericTransformer<File, String>, BeanFactoryAware {
 
 	private final Log logger = LogFactory.getLog(this.getClass());
 
@@ -79,7 +80,7 @@ public class FileToStringTransformer implements Transformer, BeanFactoryAware {
 	}
 
 	
-	public Message<?> transform(Message<?> message) {
+	public String transform(Message<?> message) {
 		try {
 			Assert.notNull(message, "Message must not be null");
 			Object payload = message.getPayload();
@@ -98,13 +99,24 @@ public class FileToStringTransformer implements Transformer, BeanFactoryAware {
 					this.logger.warn("failed to delete File '" + file + "'");
 				}
 			}
-			return transformedMessage;
+			return result;
 		}
 		catch (Exception e) {
 			throw new MessagingException(message, "failed to transform File Message", e);
 		}
 	}
 
+	public String transform(File file) {
+		try {
+			Assert.notNull(file, "Message must not be null");
+			Assert.isInstanceOf(File.class, file, "Message payload must be of type [java.io.File]");
+			String result = this.transformFile(file);
+			return result;
+		}
+		catch (Exception e) {
+			throw new MessagingException("Failed to transform File Message : " + file , e);
+		}
+	}
 
 
 	@Override
