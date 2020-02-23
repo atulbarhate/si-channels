@@ -13,7 +13,7 @@ import org.springframework.messaging.MessageChannel;
  * @author DELL
  *
  */
-public class EPECSVRoute extends AbstractMessageRouter {
+public class ExampleCSVRoute extends AbstractMessageRouter {
 
 	@Override
 	protected Collection<MessageChannel> determineTargetChannels(Message<?> message) {

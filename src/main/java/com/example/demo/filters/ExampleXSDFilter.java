@@ -10,13 +10,13 @@ import org.springframework.messaging.Message;
  * @author DELL
  *
  */
-public class EPESpelFilter implements MessageSelector {
+public class ExampleXSDFilter implements MessageSelector {
 
 	@Override
 	public boolean accept(Message<?> message) {
 		// TODO Auto-generated method stub
 		
-		System.out.println("Spel Filter called........");
+		System.out.println("XSD Filter called........");
 		
 		return true;
 	}

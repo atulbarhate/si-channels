@@ -22,14 +22,14 @@ import org.springframework.integration.transformer.ObjectToStringTransformer;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
 
-import com.example.demo.filters.EPESpelFilter;
-import com.example.demo.filters.EPEXSDFilter;
+import com.example.demo.filters.ExampleSpelFilter;
+import com.example.demo.filters.ExampleXSDFilter;
 import com.example.demo.transformers.FileToStringTransformer;
 import com.solacesystems.jcsmp.TextMessage;
 
 @EnableIntegration
 @Configuration
-public class SFTRFlow {
+public class ExampleFlow {
 	@Autowired
 	private ConnectionFactory connectionFactory;
 
@@ -61,12 +61,12 @@ public class SFTRFlow {
    
    
 	@Bean
-	public IntegrationFlow sftrFlow(){
+	public IntegrationFlow exampleFlow(){
 		return IntegrationFlows.from( Jms.inboundGateway(connectionFactory)
 				.destination("process.queue")
 				.configureListenerContainer(spec -> spec.sessionTransacted(true)))
-				.filter(new EPEXSDFilter())
-				.filter(new EPESpelFilter())
+				.filter(new ExampleXSDFilter())
+				.filter(new ExampleSpelFilter())
 				.transform(new ObjectToStringTransformer())
 //				.routeToRecipients(r -> r
 //						.recipientFlow(f -> f 
@@ -92,10 +92,10 @@ public class SFTRFlow {
 	
 	
 	@Bean
-	public IntegrationFlow sftrFlow1(){
+	public IntegrationFlow exampleFlow1(){
 		return IntegrationFlows.from( fileReader1(), c -> c.poller(Pollers.fixedDelay(100)))
-				.filter(new EPEXSDFilter())
-				.filter(new EPESpelFilter())
+				.filter(new ExampleXSDFilter())
+				.filter(new ExampleSpelFilter())
 				.transform(File.class,  new FileToStringTransformer())
 				.log(LoggingHandler.Level.INFO, "payload")
 				.get();
