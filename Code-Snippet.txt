@@ -1,0 +1,10 @@
+
+@Bean
+public Supplier<Message<String>> mySupplier() {
+    return () -> {
+        String payload = "whatever";
+        String myTopic = useYourBusinessLogic();
+        logger.info("Publishing to: " + myTopic);
+        return MessageBuilder.withPayload(payload).setHeader(BinderHeaders.TARGET_DESTINATION, myTopic).build();
+    };
+}
